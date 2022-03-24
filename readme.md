@@ -1,6 +1,10 @@
 # Jc.WebSocket
+
 websocket中间件
 
+```c#
+Install-Package Jc.WebSocket
+```
 ## JcWebSocketServer
 .net core webapi Websocket服务中间件
 
