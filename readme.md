@@ -43,10 +43,47 @@ JcWebSocketServer.DisConnect(token)
 .net core webapi Websocket客户端中间件
 
 ### 连接Server
+ ```c#
+ 
+ //创建链接
+void testWebClient()
+{
+    JcWebSocketClient wSocketClient = new JcWebSocketClient("ws://192.168.1.140:5010?token=2");
+    wSocketClient.OnOpen -= WSocketClient_OnOpen;
+    wSocketClient.OnMessage -= WSocketClient_OnMessage;
+    wSocketClient.OnClose -= WSocketClient_OnClose;
+    wSocketClient.OnError -= WSocketClient_OnError;
+ 
+    wSocketClient.OnOpen += WSocketClient_OnOpen;
+    wSocketClient.OnMessage += WSocketClient_OnMessage;
+    wSocketClient.OnClose += WSocketClient_OnClose;
+    wSocketClient.OnError += WSocketClient_OnError;
+    wSocketClient.Open();
 
-### 发送消息
+    wSocketClient.Send("info");
+}
 
-### 接收消息
+ 
+  void WSocketClient_OnError(object sender, Exception ex)
+{
+ 
+}
+ 
+  void WSocketClient_OnClose(object sender, EventArgs e)
+{
+ 
+}
+ 
+  void WSocketClient_OnMessage(object sender, string data)
+{
+    Console.WriteLine(data);
+}
+ 
+  void WSocketClient_OnOpen(object sender, EventArgs e)
+{
+ 
+}
+ ```
 
 # WebSocket在线测试工具
 [http://websocket-test.cn](http://websocket-test.cn)

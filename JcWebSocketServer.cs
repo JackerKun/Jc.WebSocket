@@ -51,6 +51,11 @@ public  static class JcWebSocketServer
     /// 定义回掉
     /// </summary>
     private static MessageCallback _callback;
+    
+    /// <summary>
+    /// 回调
+    /// </summary>
+    //public static event MessageCallback? CallBack;
 
     /// <summary>
     /// 启动中间件
@@ -80,7 +85,8 @@ public  static class JcWebSocketServer
             ArySocket.Add(ws);
             //开启连接 回传
             if (_callback != null)
-            {
+            {  
+                //CallBack(WebSocketState.Connecting, query_str, null);
                 _callback(WebSocketState.Connecting, query_str, null);
             }
             var buffer = new byte[BufferSize];
@@ -128,6 +134,7 @@ public  static class JcWebSocketServer
                     }
                     if (_callback != null)
                     {
+                        //CallBack(thisSocket.WebSocket.State, query_str, receivemsg);
                         _callback(thisSocket.WebSocket.State, query_str, receivemsg);
                     }
                 }
