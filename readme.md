@@ -2,16 +2,13 @@
 
 websocket中间件
 
-```c#
-dotnet add package  Jc.WebSocket
-```
 ## JcWebSocketServer
 .net core webapi Websocket服务中间件
 
 ### 启动方法
 ``` c#
 //启动方法
-app.UseJcWebSocketServer(callBack);
+app.UseJcWebSocketServer(callBack,isrepeat);
 
 //回调函数处理
 void callBack(WebSocketState state,string token, string msg)
@@ -23,11 +20,14 @@ void callBack(WebSocketState state,string token, string msg)
 ws://ip:port?token=your token uuid
 
  > token:
-必选，每个连接者的唯一身份信息
+当：isrepeat=false
 只能是唯一，如果有重复 将关闭上一个链接
+
 
 ### 为指定Token发送消息
 JcWebSocketServer.SendText(token,text)
+
+await JcWebSocketServer.SendTxtAsync(token, text);
 
 ### 为所有连接发送消息
 JcWebSocketServer.SendText(text)
@@ -93,3 +93,12 @@ void testWebClient()
 #### v1.0.4
 1.Fixed Net6 Mini api compatibility
 
+#### v1.3.16
+1.修复SendTxt 返回状态
+
+#### v1.3.18
+https://zhuanlan.zhihu.com/p/338772340
+
+修复 问题
+
+> One or more errors occurred. (The remote party closed the WebSocket connection without completing the close handshake.

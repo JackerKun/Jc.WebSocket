@@ -73,8 +73,16 @@ public class JcWebSocketClient
     /// <param name="wsUrl"></param>
     public JcWebSocketClient(string wsUrl)
     {
-        uri = new Uri(wsUrl);
-        ws = new ClientWebSocket();
+        try
+        {
+            uri = new Uri(wsUrl);
+            ws = new ClientWebSocket();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     /// <summary>
@@ -93,6 +101,8 @@ public class JcWebSocketClient
                 //初始化链接
                 isUserClose = false;
                 ws = new ClientWebSocket();
+                //取消代理
+                //ws.Options.Proxy = null;
                 await ws.ConnectAsync(uri, CancellationToken.None);
 
                 if (OnOpen != null)
@@ -126,7 +136,6 @@ public class JcWebSocketClient
                             bs = new List<byte>();
                         }
                     }
-
                     //继续监听Socket信息
                     result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
                 }
@@ -152,22 +161,34 @@ public class JcWebSocketClient
     /// </summary>
     /// <param name="mess"></param>
     /// <returns>是否尝试了发送</returns>
-    public bool Send(string mess)
+    public async Task<bool> Send(string mess)
     {
         try
         {
+            bool result = false;
             if (ws.State != WebSocketState.Open)
                 return false;
 
-            Task.Run(async () =>
+            await Task.Run(async () =>
             {
                 var replyMess = Encoding.UTF8.GetBytes(mess);
                 //发送消息
                 await ws.SendAsync(new ArraySegment<byte>(replyMess), WebSocketMessageType.Text, true,
                     CancellationToken.None);
+            }).ContinueWith(t =>
+            {
+                Console.WriteLine(t.Status);
+                if (t.Status == TaskStatus.RanToCompletion)
+                {
+                    result = true;
+                }
+                else
+                {
+                    if (OnError != null)
+                        OnError(ws, new Exception("send error:"+t.Status));
+                }
             });
-
-            return true;
+            return result;
         }
         catch (Exception ex)
         {
@@ -182,19 +203,32 @@ public class JcWebSocketClient
     /// </summary>
     /// <param name="bytes"></param>
     /// <returns>是否尝试了发送</returns>
-    public bool Send(byte[] bytes)
+    public async Task<bool> Send(byte[] bytes)
     {
         try
         {
+            bool result = false;
             if (ws.State != WebSocketState.Open)
                 return false;
 
-            Task.Run(async () =>
+            await Task.Run(async () =>
             {
                 //发送消息
                 await ws.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Binary, true,
                     CancellationToken.None);
+            }).ContinueWith(t =>
+            {
+                Console.WriteLine(t.Status);
+                if (t.Status == TaskStatus.RanToCompletion)
+                {
+                    result = true;
+                } else
+                {
+                    if (OnError != null)
+                        OnError(ws, new Exception("send error:"+t.Status));
+                }
             });
+            return result;
         }
         catch (Exception ex)
         {
@@ -202,7 +236,6 @@ public class JcWebSocketClient
                 OnError(ws, ex);
             return false;
         }
-        return true;
     }
 
     /// <summary>
